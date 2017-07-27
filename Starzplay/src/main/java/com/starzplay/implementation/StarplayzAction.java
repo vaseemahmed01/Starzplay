@@ -16,7 +16,7 @@ public class StarplayzAction {
 	@Autowired
 	StarzplayLoadJsonFactory starzplayLoadJsonFactory;
 
-	public RootObject getStarplazMediaContent(String level, String contClassification) {
+	public RootObject getStarplazMediaContent(String level) {
 		// TODO Auto-generated method stub
 
 		RootObject rootObject = starzplayLoadJsonFactory.getStarzplayEntiry();
@@ -38,40 +38,29 @@ public class StarplayzAction {
 					tempContClassifiction = sourceEntry.getPegContentClassification();
 				}
 
-
-				if ((level == null || level == "" || level.length() == 0) && (tempContClassifiction == null
-						|| tempContClassifiction == "" || tempContClassifiction.length() == 0)) {
+				if ((level != null && level.equalsIgnoreCase(AppConstant.CONT_lEVEL_C)) && (tempContClassifiction != null
+						&& tempContClassifiction.equalsIgnoreCase(AppConstant.CONT_CLASSIFICATION_C))) {
+					/*
+					 * If Level =='censored' and Classification == 'Censored'
+					 * Return Remove Uncensored media
+					 */
+					tempEntries.add(getMediaContent(sourceEntry, level, tempContClassifiction));
 					
+				} else if ((level != null && level == AppConstant.CONT_lEVEL_U) && (tempContClassifiction != null
+						&& tempContClassifiction.equalsIgnoreCase(AppConstant.CONT_CLASSIFICATION_C))) {
 					/*
-					 * If both Level and Classification is null or empty Return - No
-					 * filter required
+					 * If Level =='uncensored' and Classification == 'Censored'
+					 * Return - Remove censored media
 					 */
-					tempEntries.add(entry);
-				}else if ((level == null || level == "" || level.length() == 0)
-						&& tempContClassifiction != null &&tempContClassifiction == AppConstant.CONT_CLASSIFICATION_U) {
-							
+					tempEntries.add(getMediaContent(sourceEntry, level, tempContClassifiction));
+				}else{
 					/*
-					 * If both Level is null or empty and Classification is Uncensored
-					 *  Return - No filter required
+					 * in all cases no change required into filter
 					 */
-					tempEntries.add(entry);							
-				}else if ((level != null && level == AppConstant.CONT_lEVEL_C)
-						&& tempContClassifiction != null &&tempContClassifiction == AppConstant.CONT_CLASSIFICATION_C)
-					{
-					/*
-					 * If Level =='censored' and Classification == 'Censored' Return
-					 * Remove Uncensored media
-					 */
-					tempEntries = getMediaContent(entry, level, tempContClassifiction);						
-				}else if ((level != null && level == AppConstant.CONT_lEVEL_C)
-						&& tempContClassifiction != null &&tempContClassifiction == AppConstant.CONT_CLASSIFICATION_C)
-				{
-					/*
-					 * If Level =='uncensored' and Classification == 'Censored' Return -
-					 * Remove censored media
-					 */
-					tempEntries = getMediaContent(entry, level, tempContClassifiction);					
+					tempEntries.add(sourceEntry);
 				}
+				
+				
 
 			}
 			if (tempEntries != null && tempEntries.size() > 0) {
@@ -81,17 +70,18 @@ public class StarplayzAction {
 		}
 
 		starzplayLoadJsonFactory.setStarzplayEntiry(rootObject);
+		System.out.println(starzplayLoadJsonFactory.getStarzplayEntiry());
 		return starzplayLoadJsonFactory.getStarzplayEntiry();
 	}
-	
+
 	/*
 	 * Used to get the media content
 	 */
-	private ArrayList<Entry> getMediaContent(Entry entry,String level, String contClassification) {
-		
+	private Entry getMediaContent(Entry entry, String level, String contClassification) {
+
 		ArrayList<Entry> tempEntries = new ArrayList<Entry>();
 		ArrayList<Medium> tempMedia = new ArrayList<Medium>();
-		
+
 		ArrayList<Medium> media = entry.getMedia();
 		entry.setMedia(null);
 
@@ -101,12 +91,14 @@ public class StarplayzAction {
 
 				char tempLastChar = medium.getGuid().charAt(medium.getGuid().length() - 1);
 
-				if (level.equalsIgnoreCase(AppConstant.CONT_lEVEL_C) && contClassification.equalsIgnoreCase(AppConstant.CONT_CLASSIFICATION_C)) {
+				if (level.equalsIgnoreCase(AppConstant.CONT_lEVEL_C)
+						&& contClassification.equalsIgnoreCase(AppConstant.CONT_CLASSIFICATION_C)) {
 					if (tempLastChar == 'C') {
 						tempMedia.add(medium);
 					}
 
-				} else if (level.equalsIgnoreCase(AppConstant.CONT_lEVEL_U) && contClassification.equalsIgnoreCase(AppConstant.CONT_CLASSIFICATION_C)) {
+				} else if (level.equalsIgnoreCase(AppConstant.CONT_lEVEL_U)
+						&& contClassification.equalsIgnoreCase(AppConstant.CONT_CLASSIFICATION_C)) {
 					if (tempLastChar != 'C') {
 						tempMedia.add(medium);
 					}
@@ -116,8 +108,8 @@ public class StarplayzAction {
 			entry.setMedia(tempMedia);
 			tempMedia = new ArrayList<Medium>();
 		}
-		tempEntries.add(entry);
-		return tempEntries;
+		//tempEntries.add(entry);
+		return entry;
 	}
 
 }

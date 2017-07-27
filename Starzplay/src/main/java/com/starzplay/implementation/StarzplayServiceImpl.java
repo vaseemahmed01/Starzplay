@@ -17,7 +17,8 @@ public class StarzplayServiceImpl implements StarzplayService{
 	@Override
 	public RootObject getStarplayzMediaContent(String level) {
 		
-		RootObject rootObject = action.getStarplazMediaContent(level,appCostant.CONT_CLASSIFICATION_C); 
+		RootObject rootObject = action.getStarplazMediaContent(level); 
+		System.out.println(rootObject.toString());
 		
 		return rootObject;
 	}

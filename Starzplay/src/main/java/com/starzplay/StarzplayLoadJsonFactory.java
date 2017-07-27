@@ -42,9 +42,7 @@ public class StarzplayLoadJsonFactory implements InitializingBean {
 			
 			ClassLoader classLoader = getClass().getClassLoader();
 			File file = new File(classLoader.getResource("content.json").getFile());
-			//file.getp		
 			
-			//byte[] meidajsonData = Files.readAllBytes(Paths.get("C:/Project/content.json"));
 			byte[] meidajsonData = Files.readAllBytes(Paths.get(file.getPath()));
 
 			System.out.println("Size-->" + meidajsonData.length);
